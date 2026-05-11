@@ -25,6 +25,7 @@ public class UsuarioController {
 
         usuario.setNombre(dto.getNombre());
         usuario.setCorreo(dto.getCorreo());
+        usuario.setPassword(dto.getPassword());
         usuario.setRol(dto.getRol());
 
         return service.guardar(usuario);
