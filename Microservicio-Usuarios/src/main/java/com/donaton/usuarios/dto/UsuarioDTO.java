@@ -12,7 +12,7 @@ public class UsuarioDTO {
 
     @Email
     private String correo;
-    
+
     private String password;
 
     @NotBlank
