@@ -3,6 +3,7 @@ package com.donaton.usuarios.auth;
 import com.donaton.usuarios.model.Usuario;
 import com.donaton.usuarios.repository.UsuarioRepository;
 import com.donaton.usuarios.security.JwtService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,21 +22,20 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
 
-        Usuario usuario = usuarioRepository
-                .findByCorreo(request.getCorreo())
-                .orElseThrow(() ->
-                        new RuntimeException("Usuario no encontrado"));
+        Usuario usuario = usuarioRepository.findByCorreo(request.getCorreo());
 
-        if (!usuario.getPassword().equals(request.getPassword())) {
-
-            throw new RuntimeException("Contraseña incorrecta");
+        if (usuario == null) {
+            return ResponseEntity.status(401).body("Usuario no encontrado");
         }
 
-        String token =
-                jwtService.generarToken(usuario.getCorreo());
+        if (!usuario.getPassword().equals(request.getPassword())) {
+            return ResponseEntity.status(401).body("Contraseña incorrecta");
+        }
 
-        return new LoginResponse(token);
+        String token = jwtService.generarToken(usuario.getCorreo());
+
+        return ResponseEntity.ok(new LoginResponse(token));
     }
 }

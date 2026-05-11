@@ -26,13 +26,8 @@ public class UsuarioController {
         usuario.setNombre(dto.getNombre());
         usuario.setCorreo(dto.getCorreo());
         usuario.setPassword(dto.getPassword());
-        usuario.setRol("USER");
+        usuario.setRol(dto.getRol());
 
         return service.guardar(usuario);
-    }
-
-    @GetMapping
-    public List<Usuario> listar() {
-        return service.listar();
     }
 }
