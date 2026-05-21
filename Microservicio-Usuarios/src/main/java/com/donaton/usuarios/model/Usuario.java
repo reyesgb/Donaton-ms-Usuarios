@@ -15,9 +15,14 @@ public class Usuario {
 
     private String nombre;
 
+    @Column(unique = true)
     private String correo;
 
     private String password;
 
-    private String rol;
+    private String organizacion; //Se usa mas adelante para poder implementarlo en el frontend
+
+    @Enumerated(EnumType.STRING)
+    private Rol rol;
+
 }
