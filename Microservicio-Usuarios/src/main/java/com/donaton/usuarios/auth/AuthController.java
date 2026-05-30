@@ -4,6 +4,7 @@ import com.donaton.usuarios.model.Usuario;
 import com.donaton.usuarios.repository.UsuarioRepository;
 import com.donaton.usuarios.security.JwtService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -12,13 +13,14 @@ public class AuthController {
 
     private final JwtService jwtService;
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder; // inyectar bean
 
-    public AuthController(
-            JwtService jwtService,
-            UsuarioRepository usuarioRepository
-    ) {
+    public AuthController(JwtService jwtService,
+                          UsuarioRepository usuarioRepository,
+                          PasswordEncoder passwordEncoder) {
         this.jwtService = jwtService;
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/login")
@@ -30,12 +32,14 @@ public class AuthController {
             return ResponseEntity.status(401).body("Usuario no encontrado");
         }
 
-        if (!usuario.getPassword().equals(request.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), usuario.getPassword())) {
             return ResponseEntity.status(401).body("Contraseña incorrecta");
         }
 
-        String token = jwtService.generarToken(usuario.getCorreo());
+        // Pasar el objeto Usuario (no solo el correo)
+        String token = jwtService.generarToken(usuario);
 
-        return ResponseEntity.ok(new LoginResponse(token));
+        // LoginResponse tiene (rol, token) según tu clase actual:
+        return ResponseEntity.ok(new LoginResponse(usuario.getRol().name(), token));
     }
 }

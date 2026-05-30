@@ -12,12 +12,11 @@ public class UsuarioDTO {
     private String nombre;
 
     @Email
-    private String correo;
-
     @NotBlank
-    private String rol;
+    private String correo;
 
     @NotBlank
     @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
     private String password;
+
 }
