@@ -5,7 +5,11 @@ import com.donaton.usuarios.repository.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+
 import java.util.List;
+
+
+
 
 @Service
 public class UsuarioService {
@@ -22,6 +26,7 @@ public class UsuarioService {
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
         return repository.save(usuario);
     }
+
 
     public List<Usuario> listar() {
         return repository.findAll();
