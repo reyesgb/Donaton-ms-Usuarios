@@ -1,6 +1,7 @@
 package com.donaton.usuarios.controller;
 
 import com.donaton.usuarios.dto.UsuarioDTO;
+import com.donaton.usuarios.model.Rol;
 import com.donaton.usuarios.model.Usuario;
 import com.donaton.usuarios.service.UsuarioService;
 
@@ -28,42 +29,69 @@ class UsuarioControllerTest {
 
     @Test
     void listarDebeRetornarUsuarios() {
-
         Usuario usuario = new Usuario();
         usuario.setNombre("Matias");
 
-        when(service.listar())
-                .thenReturn(List.of(usuario));
+        when(service.listar()).thenReturn(List.of(usuario));
 
-        List<Usuario> resultado =
-                controller.listar();
+        List<Usuario> resultado = controller.listar();
 
         assertEquals(1, resultado.size());
-
         verify(service).listar();
     }
 
     @Test
-    void crearDebeGuardarUsuario() {
-
+    void crearDebeGuardarUsuarioConRolPorDefecto() {
+        // Escenario: Correo normal (cae en el "else")
         UsuarioDTO dto = new UsuarioDTO();
         dto.setNombre("Matias");
         dto.setCorreo("matias@gmail.com");
         dto.setPassword("123456");
 
-        Usuario usuarioGuardado = new Usuario();
-        usuarioGuardado.setNombre("Matias");
+        // Configuramos el mock para que retorne el mismo usuario que recibe
+        when(service.guardar(any(Usuario.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        when(service.guardar(any(Usuario.class)))
-                .thenReturn(usuarioGuardado);
-
-        Usuario resultado =
-                controller.crear(dto);
+        Usuario resultado = controller.crear(dto);
 
         assertNotNull(resultado);
+        assertEquals("Matias", resultado.getNombre());
+        assertEquals(Rol.USUARIO, resultado.getRol(), "Debe asignar Rol.USUARIO por defecto");
 
-        assertEquals("Matias",
-                resultado.getNombre());
+        verify(service).guardar(any(Usuario.class));
+    }
+
+    @Test
+    void crearDebeGuardarUsuarioConRolMunicipalidad() {
+        // Escenario: Correo termina en @mun.cl (cae en el primer "if")
+        UsuarioDTO dto = new UsuarioDTO();
+        dto.setNombre("Matias Muni");
+        dto.setCorreo("contacto@mun.cl");
+        dto.setPassword("123456");
+
+        when(service.guardar(any(Usuario.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        Usuario resultado = controller.crear(dto);
+
+        assertNotNull(resultado);
+        assertEquals(Rol.MUNICIPALIDAD, resultado.getRol(), "Debe asignar Rol.MUNICIPALIDAD");
+
+        verify(service).guardar(any(Usuario.class));
+    }
+
+    @Test
+    void crearDebeGuardarUsuarioConRolLogistica() {
+        // Escenario: Correo termina en @logistica.cl (cae en el "else if")
+        UsuarioDTO dto = new UsuarioDTO();
+        dto.setNombre("Matias Log");
+        dto.setCorreo("despachos@logistica.cl");
+        dto.setPassword("123456");
+
+        when(service.guardar(any(Usuario.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        Usuario resultado = controller.crear(dto);
+
+        assertNotNull(resultado);
+        assertEquals(Rol.LOGISTICA, resultado.getRol(), "Debe asignar Rol.LOGISTICA");
 
         verify(service).guardar(any(Usuario.class));
     }
